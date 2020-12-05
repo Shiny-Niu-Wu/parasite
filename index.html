@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Photon connect</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <img src="images/piezo.png" alt="sensor" id="sensor">
+    <img src="images/beat-rate.png" alt="heartbeat" id="heartbeat">
+    <img src="images/breadboard.png" alt="breadboard" id="breadboard">
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js"></script>
+
+    <script>
+      let URL = "https://api.particle.io/v1/devices/31002a001947393035313138/myValue?access_token=4b1c173e4b427b9e5897560b0a7d4745675d1de7";
+      let otherURL = "https://api.particle.io/v1/devices/1c0038001747373335333438/myValue?access_token=ab43326b5e198c725060d07f3c43d4666db7f6c5";
+      let data = "";
+      let other_data = "";
+      let currentTime, prevTime;
+      let value = 10;
+      let other_value = 10;
+
+      //var w = 0;
+
+      function preload() {
+        img = loadImage('images/heart-outline.png');
+        img2 = loadImage('images/heart-abstract.png');
+      }
+
+      function setup(){
+        // var canvas = createCanvas(400,300);
+        // canvas.parent('sketch');
+        // w = random(width/4,width/2);
+        createCanvas(600,600);
+        imageMode(CENTER);
+        image(img, 0, 0);
+        image(img2, 0, 0);
+      }
+
+      function draw(){
+        background(225);
+
+        currentTime = millis() % 2000;
+        if (currentTime < prevTime) {
+          data = loadJSON(URL, processData, handleError);
+          other_data = loadJSON(otherURL, processData2, handleError);
+        }
+
+        other_value = map(parseInt(other_data.result), 1000, 4000, 0, 300);
+        //the most common values are between 2000-2500, and after mapping it would be between 100-150
+        noStroke();
+        // fill(255, 0, 0);
+        // circle(mouseX, mouseY, other_value);
+        image(img, mouseX, mouseY, other_value, other_value);
+
+        // fill(255, 0, 0);
+        // circle(random(100, 500), random(100, 500), data.result);
+        image(img2, random(100, 500), random(100, 500), data.result, data.result);
+
+        prevTime = currentTime;
+      }
+
+      //need to have this callback function
+      //because there is just too much data to load
+      //after the data is processed, the data would be loaded in loadJSON
+      function processData(data){
+        console.log(data.result);
+        //value = map(parseInt(data.result), 0, 4096, 0, 400);
+        //console.log(value);
+      }
+
+      function processData2(other_data){
+        //console.log(other_data.result);
+        other_value = map(parseInt(other_data.result), 1000, 4000, 0, 300);
+        console.log(other_value);
+      }
+
+      function handleError(error){
+        console.log(error);
+      }
+    </script>
+
+  </body>
+</html>
